@@ -11,8 +11,13 @@ export function randomInt(int) {
   return Math.floor(Math.random() * int);
 }
 
+export function random100() {
+  return randomInt(100);
+}
+
 export function calcMeleeDamage({ attacker: { damage }, target }) {
-  return randomInt(damage[1] - damage[0] + 1) - target.defense;
+  const val = randomInt(damage[1] - damage[0] + 1) + damage[0] - target.defense;
+  return val >= 0 ? val : 0;
 }
 
 export function rawHit({ chanceModifier }, { attacker, target }) {

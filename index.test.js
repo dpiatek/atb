@@ -4,8 +4,7 @@ import {
   rawAttack,
   calcMeleeDamage,
   compose,
-  curryLeft,
-  curryRight
+  curryLeft
 } from "./index";
 
 const player = {

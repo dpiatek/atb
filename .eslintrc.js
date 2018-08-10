@@ -1,18 +1,19 @@
 module.exports = {
+  parser: "babel-eslint",
   env: {
     browser: true,
-    commonjs: true,
     es6: true,
-    jest/globals: true
+    "jest/globals": true
   },
-  extends: "eslint:recommended",
+  extends: ["eslint:recommended", "plugin:react/recommended"],
   parserOptions: {
+    sourceType: "module",
     ecmaFeatures: {
       jsx: true
     },
     ecmaVersion: 2018
   },
-  plugins: ["react", "jest"],
+  plugins: ["react", "jest", "babel"],
   rules: {
     indent: ["error", 2],
     "linebreak-style": ["error", "unix"],

@@ -9,8 +9,7 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: "babel",
-        options: ["env", "react", "stage-3"]
+        loader: "babel-loader"
       }
     ]
   },
