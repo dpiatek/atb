@@ -1,4 +1,12 @@
-const { attack, hit, compose } = require("./index");
+const {
+  rawHit,
+  rawDamage,
+  rawAttack,
+  calcMeleeDamage,
+  compose,
+  curryLeft,
+  curryRight
+} = require("./index");
 
 const player = {
   name: "Cloud",
@@ -18,35 +26,86 @@ const slime = {
   life: 20 // hp
 };
 
+const battle = {
+  attacker: player,
+  target: slime
+};
+
 describe("compose", () => {
-  it("composes a single function", () => {
+  it("calls 1 function", () => {
+    const f = jest.fn();
+
+    const composed = compose(f);
+    composed();
+    expect(f).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls 4 functions", () => {
     const f = jest.fn();
     const g = jest.fn();
+    const h = jest.fn();
+    const i = jest.fn();
+
     const composed = compose(
       f,
-      g
+      g,
+      h,
+      i
     );
     composed();
     expect(f).toHaveBeenCalledTimes(1);
     expect(g).toHaveBeenCalledTimes(1);
+    expect(h).toHaveBeenCalledTimes(1);
+    expect(i).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls both functions in right order", () => {
+    const f = jest.fn(v => "A" + v);
+    const g = jest.fn(v => v);
+
+    const composed = compose(
+      f,
+      g
+    );
+    const result = composed("B");
+    expect(result).toBe("AB");
+    expect(f).toHaveBeenCalledWith("B");
+  });
+
+  it("supports multiple args", () => {
+    const f = jest.fn(v => "A" + v);
+    const g = jest.fn((x, y, z) => x + y + z);
+
+    const composed = compose(
+      f,
+      g
+    );
+    const result = composed("B", "C", "D");
+    expect(result).toBe("ABCD");
   });
 });
 
-describe("basics", () => {
-  it("successfully attacks", () => {
-    const noMultiplierHit = hit.bind(this, () => 0);
+describe("attack", () => {
+  it("succeceds and returns updated data for target", () => {
+    const alwaysHit = () => -1000;
+    const hitCalc = curryLeft(rawHit, { chanceModifier: alwaysHit });
+    const damageCalc = curryLeft(rawDamage, { damageCalc: calcMeleeDamage });
+    const alwaysHitAttack = curryLeft(rawAttack, { hitCalc, damageCalc });
 
-    expect(attack(player, slime, noMultiplierHit).attacker).toBe(player);
-    expect(attack(player, slime, noMultiplierHit).target).toEqual({
+    expect(alwaysHitAttack(battle).attacker).toBe(player);
+    expect(alwaysHitAttack(battle).target).toEqual({
       ...slime,
       life: 15
     });
   });
 
   it("fails an attack and returns the same data", () => {
-    const fullMultiplierHit = hit.bind(this, () => 100);
+    const neverHit = () => 1000;
+    const hitCalc = curryLeft(rawHit, { chanceModifier: neverHit });
+    const damageCalc = curryLeft(rawDamage, { damageCalc: calcMeleeDamage });
+    const neverHitAttack = curryLeft(rawAttack, { hitCalc, damageCalc });
 
-    expect(attack(player, slime, fullMultiplierHit).attacker).toBe(player);
-    expect(attack(player, slime, fullMultiplierHit).target).toBe(slime);
+    expect(neverHitAttack(battle).attacker).toBe(player);
+    expect(neverHitAttack(battle).target).toBe(slime);
   });
 });
