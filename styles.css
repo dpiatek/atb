@@ -1,0 +1,76 @@
+body {
+  margin: 0;
+  font-family: 'Tajawal', sans-serif;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.log, .actions, .chars {
+  border: 1px solid black;
+  margin: 10px;
+  padding: 10px;
+}
+
+.log {
+  height: calc(50vh - 41px);
+	overflow-y: scroll;
+}
+
+.actions {
+}
+
+.actions ul {
+  border: 1px solid black;
+	display: inline-block;
+  width: 100%;
+}
+
+.actions li {
+  padding: 10px;
+  line-height: 1.5em;
+  border-bottom: 1px solid black;
+}
+
+.actions li:first-child {
+  background-color: black;
+  color: white;
+}
+
+.chars {
+}
+
+.chars ul {
+  border: 1px solid black;
+}
+
+.chars li {
+  padding: 10px;
+  line-height: 1.5em;
+  border-bottom: 1px solid black;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chars li span {
+	position: relative;
+	top: 3px;
+}
+
+.atb-progress {
+  display: inline-block;
+  border: 1px solid black;
+  width: 80%;
+  height: 24px;
+}
+
+.atb-progress div {
+  height: 100%;
+  width: 77%;
+  background-color: black;
+}
+
