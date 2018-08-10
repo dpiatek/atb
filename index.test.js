@@ -11,7 +11,7 @@ const {
 const player = {
   name: "Cloud",
   melee: 80, // to hit
-  damage: 20, // damage
+  damage: [20, 30], // damage
   evansion: 20, // reduces to hit
   defense: 10, // reduces damage,
   life: 40 // hp
@@ -20,9 +20,9 @@ const player = {
 const slime = {
   name: "Slime",
   melee: 70, // to hit
-  damage: 20, // damage
+  damage: [11, 15], // damage
   evansion: 5, // reduces to hit
-  defense: 15, // reduces damage,
+  defense: 25, // reduces damage,
   life: 20 // hp
 };
 
@@ -86,10 +86,12 @@ describe("compose", () => {
 });
 
 describe("attack", () => {
-  it("succeceds and returns updated data for target", () => {
+  it("succeeds and returns updated data for target", () => {
     const alwaysHit = () => -1000;
+    const constantDamage = ({ attacker: { damage }, target }) =>
+      damage[1] - target.defense;
     const hitCalc = curryLeft(rawHit, { chanceModifier: alwaysHit });
-    const damageCalc = curryLeft(rawDamage, { damageCalc: calcMeleeDamage });
+    const damageCalc = curryLeft(rawDamage, { damageCalc: constantDamage });
     const alwaysHitAttack = curryLeft(rawAttack, { hitCalc, damageCalc });
 
     expect(alwaysHitAttack(battle).attacker).toBe(player);

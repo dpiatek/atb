@@ -11,8 +11,8 @@ function randomInt(int) {
   return Math.floor(Math.random() * int);
 }
 
-function calcMeleeDamage({ attacker, target }) {
-  return attacker.damage - target.defense;
+function calcMeleeDamage({ attacker: { damage }, target }) {
+  return randomInt(damage[1] - damage[0] + 1) - target.defense;
 }
 
 function rawHit({ chanceModifier }, { attacker, target }) {
