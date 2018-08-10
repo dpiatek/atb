@@ -1,4 +1,4 @@
-const {
+import {
   rawHit,
   rawDamage,
   rawAttack,
@@ -6,7 +6,7 @@ const {
   compose,
   curryLeft,
   curryRight
-} = require("./index");
+} from "./index";
 
 const player = {
   name: "Cloud",

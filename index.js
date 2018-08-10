@@ -7,19 +7,19 @@ const curryLeft = (fn, ...curriedArgs) => (...args) =>
 const curryRight = (fn, ...curriedArgs) => (...args) =>
   fn(...args, ...curriedArgs);
 
-function randomInt(int) {
+export function randomInt(int) {
   return Math.floor(Math.random() * int);
 }
 
-function calcMeleeDamage({ attacker: { damage }, target }) {
+export function calcMeleeDamage({ attacker: { damage }, target }) {
   return randomInt(damage[1] - damage[0] + 1) - target.defense;
 }
 
-function rawHit({ chanceModifier }, { attacker, target }) {
+export function rawHit({ chanceModifier }, { attacker, target }) {
   return chanceModifier() + target.evansion <= attacker.melee;
 }
 
-function rawDamage({ damageCalc }, { attacker, target }) {
+export function rawDamage({ damageCalc }, { attacker, target }) {
   return {
     target: {
       ...target,
@@ -29,7 +29,7 @@ function rawDamage({ damageCalc }, { attacker, target }) {
   };
 }
 
-function rawAttack({ hitCalc, damageCalc }, battle) {
+export function rawAttack({ hitCalc, damageCalc }, battle) {
   if (hitCalc(battle)) {
     return damageCalc(battle);
   } else {
@@ -37,12 +37,4 @@ function rawAttack({ hitCalc, damageCalc }, battle) {
   }
 }
 
-module.exports = {
-  rawHit,
-  rawDamage,
-  rawAttack,
-  calcMeleeDamage,
-  compose,
-  curryLeft,
-  curryRight
-};
+export { compose, curryLeft, curryRight };
