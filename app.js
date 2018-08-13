@@ -9,7 +9,8 @@ import {
   curryLeft,
   compose,
   eitherOr,
-  identity
+  identity,
+  message
 } from "./index";
 
 const hitCalc = curryLeft(rawHit, { chanceModifier: random100 });
@@ -22,6 +23,7 @@ const damageOrMiss = eitherOr(
 );
 
 const attack = compose(
+  message,
   damageOrMiss,
   hitCalc
 );
@@ -50,7 +52,8 @@ class App extends React.Component {
 
     this.state = {
       player: props.player,
-      enemy: props.enemy
+      enemy: props.enemy,
+      messages: []
     };
   }
 
@@ -58,19 +61,10 @@ class App extends React.Component {
     const { player, enemy } = this.state;
     const newState = attack({ attacker: enemy, target: player });
 
-    if (player !== newState.target) {
-      console.log(
-        `${newState.attacker.name} hits ${newState.target.name} for ${Math.abs(
-          newState.target.life - this.state.player.life
-        )} damage!`
-      );
-    } else {
-      console.log(`${newState.attacker.name} misses!`);
-    }
-
     this.setState(() => ({
       player: newState.target,
-      enemy: newState.attacker
+      enemy: newState.attacker,
+      messages: [...this.state.messages, newState.result.message]
     }));
   };
 
@@ -78,19 +72,10 @@ class App extends React.Component {
     const { player, enemy } = this.state;
     const newState = attack({ attacker: player, target: enemy });
 
-    if (player !== newState.target) {
-      console.log(
-        `${newState.attacker.name} hits ${newState.target.name} for ${Math.abs(
-          newState.target.life - this.state.enemy.life
-        )} damage!`
-      );
-    } else {
-      console.log(`${newState.attacker.name} misses!`);
-    }
-
     this.setState(() => ({
       player: newState.attacker,
-      enemy: newState.target
+      enemy: newState.target,
+      messages: [...this.state.messages, newState.result.message]
     }));
   };
 
@@ -99,6 +84,12 @@ class App extends React.Component {
       <React.Fragment>
         <pre>{JSON.stringify(this.state.player)}</pre>
         <pre>{JSON.stringify(this.state.enemy)}</pre>
+        <p>{this.state.message}</p>
+        <ol>
+          {this.state.messages.map((msg, i) => (
+            <li key={i}>{msg}</li>
+          ))}
+        </ol>
         <button onClick={this.attackEnemy}>Player action</button>
         <button onClick={this.attackPlayer}>Enemy action</button>
       </React.Fragment>

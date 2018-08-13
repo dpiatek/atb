@@ -44,14 +44,23 @@ export const rawDamage = ({ damageCalc }, action) => {
   };
 };
 
-export const rawMessage = (oldBattle, battle) => {
-  if (player !== newState.target) {
-    console.log(
-      `${newState.attacker.name} hits ${newState.target.name} for ${Math.abs(
-        newState.target.life - this.state.player.life
-      )} damage!`
-    );
+export const message = action => {
+  const { attacker, target, result } = action;
+  let message;
+
+  if (result.hit) {
+    message = `${attacker.name} hits ${target.name} for ${
+      result.damage
+    } damage!`;
   } else {
-    console.log(`${newState.attacker.name} misses!`);
+    message = `${attacker.name} misses!`;
   }
+
+  return {
+    ...action,
+    result: {
+      ...action.result,
+      message
+    }
+  };
 };
