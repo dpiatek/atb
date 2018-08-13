@@ -1,30 +1,25 @@
-const compose = (...fns) => (...arg) =>
+export const compose = (...fns) => (...arg) =>
   fns.reduceRight((acc, val) => () => val(acc(...arg)))();
 
-const curryLeft = (fn, ...curriedArgs) => (...args) =>
+export const curryLeft = (fn, ...curriedArgs) => (...args) =>
   fn(...curriedArgs, ...args);
 
-const curryRight = (fn, ...curriedArgs) => (...args) =>
+export const curryRight = (fn, ...curriedArgs) => (...args) =>
   fn(...args, ...curriedArgs);
 
-export function randomInt(int) {
-  return Math.floor(Math.random() * int);
-}
+export const randomInt = int => Math.floor(Math.random() * int);
 
-export function random100() {
-  return randomInt(100);
-}
+export const random100 = () => randomInt(100);
 
-export function calcMeleeDamage({ attacker: { damage }, target }) {
+export const calcMeleeDamage = ({ attacker: { damage }, target }) => {
   const val = randomInt(damage[1] - damage[0] + 1) + damage[0] - target.defense;
   return val >= 0 ? val : 0;
-}
+};
 
-export function rawHit({ chanceModifier }, { attacker, target }) {
-  return chanceModifier() + target.evansion <= attacker.melee;
-}
+export const rawHit = ({ chanceModifier }, { attacker, target }) =>
+  chanceModifier() + target.evansion <= attacker.melee;
 
-export function rawDamage({ damageCalc }, { attacker, target }) {
+export const rawDamage = ({ damageCalc }, { attacker, target }) => {
   return {
     target: {
       ...target,
@@ -32,14 +27,24 @@ export function rawDamage({ damageCalc }, { attacker, target }) {
     },
     attacker
   };
-}
+};
 
-export function rawAttack({ hitCalc, damageCalc }, battle) {
+export const rawAttack = ({ hitCalc, damageCalc }, battle) => {
   if (hitCalc(battle)) {
     return damageCalc(battle);
   } else {
     return battle;
   }
-}
+};
 
-export { compose, curryLeft, curryRight };
+export const rawMessage = (oldBattle, battle) => {
+  if (player !== newState.target) {
+    console.log(
+      `${newState.attacker.name} hits ${newState.target.name} for ${Math.abs(
+        newState.target.life - this.state.player.life
+      )} damage!`
+    );
+  } else {
+    console.log(`${newState.attacker.name} misses!`);
+  }
+};
