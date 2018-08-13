@@ -1,10 +1,11 @@
 import {
   rawHit,
   rawDamage,
-  rawAttack,
   calcMeleeDamage,
   compose,
-  curryLeft
+  curryLeft,
+  eitherOr,
+  identity
 } from "./index";
 
 const player = {
@@ -91,7 +92,16 @@ describe("attack", () => {
       damage[1] - target.defense;
     const hitCalc = curryLeft(rawHit, { chanceModifier: alwaysHit });
     const damageCalc = curryLeft(rawDamage, { damageCalc: constantDamage });
-    const alwaysHitAttack = curryLeft(rawAttack, { hitCalc, damageCalc });
+    const damageOrMiss = eitherOr(
+      action => action.result.hit,
+      damageCalc,
+      identity
+    );
+
+    const alwaysHitAttack = compose(
+      damageOrMiss,
+      hitCalc
+    );
 
     expect(alwaysHitAttack(battle).attacker).toBe(player);
     expect(alwaysHitAttack(battle).target).toEqual({
@@ -104,7 +114,17 @@ describe("attack", () => {
     const neverHit = () => 1000;
     const hitCalc = curryLeft(rawHit, { chanceModifier: neverHit });
     const damageCalc = curryLeft(rawDamage, { damageCalc: calcMeleeDamage });
-    const neverHitAttack = curryLeft(rawAttack, { hitCalc, damageCalc });
+
+    const damageOrMiss = eitherOr(
+      action => action.result.hit,
+      damageCalc,
+      identity
+    );
+
+    const neverHitAttack = compose(
+      damageOrMiss,
+      hitCalc
+    );
 
     expect(neverHitAttack(battle).attacker).toBe(player);
     expect(neverHitAttack(battle).target).toBe(slime);

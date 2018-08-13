@@ -7,6 +7,11 @@ export const curryLeft = (fn, ...curriedArgs) => (...args) =>
 export const curryRight = (fn, ...curriedArgs) => (...args) =>
   fn(...args, ...curriedArgs);
 
+export const eitherOr = (predicateFn, leftFn, rightFn) => (...args) =>
+  predicateFn(...args) ? leftFn(...args) : rightFn(...args);
+
+export const identity = ident => ident;
+
 export const randomInt = int => Math.floor(Math.random() * int);
 
 export const random100 = () => randomInt(100);
@@ -16,25 +21,27 @@ export const calcMeleeDamage = ({ attacker: { damage }, target }) => {
   return val >= 0 ? val : 0;
 };
 
-export const rawHit = ({ chanceModifier }, { attacker, target }) =>
-  chanceModifier() + target.evansion <= attacker.melee;
-
-export const rawDamage = ({ damageCalc }, { attacker, target }) => {
-  return {
-    target: {
-      ...target,
-      life: target.life - damageCalc({ attacker, target })
-    },
-    attacker
-  };
+export const rawHit = ({ chanceModifier }, action) => {
+  const { attacker, target } = action;
+  const hit = chanceModifier() + target.evansion <= attacker.melee;
+  return { ...action, result: { ...action.result, hit } };
 };
 
-export const rawAttack = ({ hitCalc, damageCalc }, battle) => {
-  if (hitCalc(battle)) {
-    return damageCalc(battle);
-  } else {
-    return battle;
-  }
+export const rawDamage = ({ damageCalc }, action) => {
+  const { attacker, target } = action;
+  const damage = damageCalc({ attacker, target });
+
+  return {
+    ...action,
+    target: {
+      ...target,
+      life: target.life - damage
+    },
+    result: {
+      ...action.result,
+      damage
+    }
+  };
 };
 
 export const rawMessage = (oldBattle, battle) => {

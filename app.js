@@ -2,17 +2,29 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import {
-  rawAttack,
   rawDamage,
   rawHit,
   calcMeleeDamage,
   random100,
-  curryLeft
+  curryLeft,
+  compose,
+  eitherOr,
+  identity
 } from "./index";
 
 const hitCalc = curryLeft(rawHit, { chanceModifier: random100 });
 const damageCalc = curryLeft(rawDamage, { damageCalc: calcMeleeDamage });
-const attack = curryLeft(rawAttack, { hitCalc, damageCalc });
+
+const damageOrMiss = eitherOr(
+  action => action.result.hit,
+  damageCalc,
+  identity
+);
+
+const attack = compose(
+  damageOrMiss,
+  hitCalc
+);
 
 const player = {
   name: "Cloud",
