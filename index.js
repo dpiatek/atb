@@ -1,3 +1,9 @@
+/*
+ *  Copyright: (c) 2018, Dominik Piatek <do.piatek@gmail.com>
+ *  GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+ *
+*/
+
 export const compose = (...fns) => (...arg) =>
   fns.reduceRight((acc, val) => () => val(acc(...arg)))();
 

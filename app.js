@@ -1,3 +1,9 @@
+/*
+ *  Copyright: (c) 2018, Dominik Piatek <do.piatek@gmail.com>
+ *  GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+ *
+*/
+
 import React from "react";
 import ReactDOM from "react-dom";
 
@@ -34,7 +40,8 @@ const player = {
   damage: [20, 30], // damage
   evansion: 20, // reduces to hit
   defense: 10, // reduces damage,
-  life: 40 // hp
+  life: 40, // hp
+  speed: 8
 };
 
 const slime = {
@@ -43,8 +50,36 @@ const slime = {
   damage: [11, 15], // damage
   evansion: 5, // reduces to hit
   defense: 25, // reduces damage,
-  life: 20 // hp
+  life: 20, // hp,
+  speed: 5
 };
+
+const tick = (state, update) => {
+  const {
+    player: { speed: playerSpeed },
+    enemy: { speed: enemySpeed },
+    atb
+  } = state();
+
+  const newPlayerSpeed = atb.player + playerSpeed;
+  const newEnemySpeed = atb.enemy + enemySpeed;
+
+  if (newPlayerSpeed !== 100 || newEnemySpeed !== 100) {
+    update({
+      player: newPlayerSpeed >= 100 ? 100 : newPlayerSpeed,
+      enemy: newEnemySpeed >= 100 ? 100 : newEnemySpeed
+    });
+  }
+};
+
+// tickMs -> currentState -> newState
+// pulse(100, staticData).map(data => calculateAtb(data))
+
+// const pulse = () => {
+//   return {
+//     map: callback => {}
+//   };
+// };
 
 class App extends React.Component {
   constructor(props) {
@@ -53,45 +88,88 @@ class App extends React.Component {
     this.state = {
       player: props.player,
       enemy: props.enemy,
-      messages: []
+      messages: [],
+      atb: {
+        player: 0,
+        enemy: 0
+      }
     };
   }
 
-  attackPlayer = () => {
-    const { player, enemy } = this.state;
-    const newState = attack({ attacker: enemy, target: player });
+  timeoutId = null;
 
-    this.setState(() => ({
-      player: newState.target,
-      enemy: newState.attacker,
-      messages: [...this.state.messages, newState.result.message]
+  startBattle = () => {
+    this.timeoutId = setInterval(tick, 100, this.fetchState, this.updateAtb);
+  };
+
+  resetBattle = () => {
+    clearInterval(this.timeoutId);
+
+    this.updateAtb({
+      player: 0,
+      enemy: 0
+    });
+  };
+
+  fetchState = () => {
+    return this.state;
+  };
+
+  updateAtb = atb => {
+    this.setState(s => ({
+      ...s,
+      atb
     }));
   };
 
-  attackEnemy = () => {
-    const { player, enemy } = this.state;
-    const newState = attack({ attacker: player, target: enemy });
+  attack = config => {
+    const [attacker, target] = config;
+    const ns = attack({
+      attacker: this.state[attacker],
+      target: this.state[target]
+    });
 
-    this.setState(() => ({
-      player: newState.attacker,
-      enemy: newState.target,
-      messages: [...this.state.messages, newState.result.message]
+    this.setState(s => ({
+      [attacker]: ns.attacker,
+      [target]: ns.target,
+      messages: [...s.messages, ns.result.message],
+      atb: {
+        ...s.atb,
+        [attacker]: 0
+      }
     }));
   };
 
   render() {
+    const { player, enemy, atb, messages } = this.state;
+    const playerEnabled = atb.player === 100;
+    const enemyEnabled = atb.enemy === 100;
+
     return (
       <React.Fragment>
-        <pre>{JSON.stringify(this.state.player)}</pre>
-        <pre>{JSON.stringify(this.state.enemy)}</pre>
-        <p>{this.state.message}</p>
+        <button onClick={this.startBattle}>Start battle</button>
+        <button onClick={this.resetBattle}>Reset battle</button>
+        <button
+          disabled={!playerEnabled}
+          onClick={this.attack.bind(this, ["player", "enemy"])}
+        >
+          Player action
+        </button>
+        <progress name="player" max="100" value={atb.player} />
+        <button
+          disabled={!enemyEnabled}
+          onClick={this.attack.bind(this, ["enemy", "player"])}
+        >
+          Enemy action
+        </button>
+        <progress name="enemy" max="100" value={atb.enemy} />
+        <pre>{JSON.stringify(player)}</pre>
+        <pre>{JSON.stringify(enemy)}</pre>
         <ol>
-          {this.state.messages.map((msg, i) => (
+          {messages.map((msg, i) => (
             <li key={i}>{msg}</li>
           ))}
         </ol>
-        <button onClick={this.attackEnemy}>Player action</button>
-        <button onClick={this.attackPlayer}>Enemy action</button>
       </React.Fragment>
     );
   }
